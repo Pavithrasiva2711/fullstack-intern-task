@@ -764,17 +764,6 @@ function App() {
 
 
 
-        <footer className="mt-12 flex flex-col justify-between gap-3 border-t border-slate-200 pt-6 text-sm text-slate-500 sm:flex-row sm:items-center">
-
-          <p className="font-semibold text-slate-700">
-
-            Template<span className="text-violet-600">Hub.</span>
-
-          </p>
-
-          <p>Discover. Curate. Create. · Built with React & Tailwind CSS</p>
-
-        </footer>
 
       </main>
 
