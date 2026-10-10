@@ -26,7 +26,7 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
       return res.status(400).json({
         success: false,
         message: 'Please enter a valid email address.',
@@ -41,6 +41,14 @@ router.post('/register', async (req, res) => {
     }
 
     const normalizedEmail = email.trim().toLowerCase();
+    const normalizedName = name.trim();
+
+    if (!normalizedName) {
+      return res.status(400).json({
+        success: false,
+        message: 'Name cannot be empty.',
+      });
+    }
 
     const existingUser = await db('users')
       .where({ email: normalizedEmail })
@@ -55,19 +63,41 @@ router.post('/register', async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const [id] = await db('users').insert({
-      name: name.trim(),
-      email: normalizedEmail,
-      password: hashedPassword,
-    });
+    // Works with PostgreSQL and SQLite through Knex
+    const insertedRows = await db('users')
+      .insert({
+        name: normalizedName,
+        email: normalizedEmail,
+        password: hashedPassword,
+      })
+      .returning(['id', 'name', 'email']);
+
+    const insertedUser = Array.isArray(insertedRows)
+      ? insertedRows[0]
+      : insertedRows;
+
+    // Fallback for SQLite configurations that return no inserted row
+    let userId = insertedUser?.id;
+
+    if (userId == null) {
+      const savedUser = await db('users')
+        .where({ email: normalizedEmail })
+        .first();
+
+      if (!savedUser) {
+        throw new Error('User was inserted but could not be retrieved.');
+      }
+
+      userId = savedUser.id;
+    }
 
     const user = {
-      id,
-      name: name.trim(),
+      id: userId,
+      name: normalizedName,
       email: normalizedEmail,
     };
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'Registration successful!',
       user,
@@ -75,7 +105,15 @@ router.post('/register', async (req, res) => {
     });
   } catch (error) {
     console.error('Registration error:', error.message);
-    res.status(500).json({
+
+    if (error.code === '23505' || error.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+      return res.status(409).json({
+        success: false,
+        message: 'An account with this email already exists.',
+      });
+    }
+
+    return res.status(500).json({
       success: false,
       message: 'Registration failed. Please try again.',
     });
@@ -113,7 +151,7 @@ router.post('/login', async (req, res) => {
       email: user.email,
     };
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Login successful!',
       user: safeUser,
@@ -121,7 +159,8 @@ router.post('/login', async (req, res) => {
     });
   } catch (error) {
     console.error('Login error:', error.message);
-    res.status(500).json({
+
+    return res.status(500).json({
       success: false,
       message: 'Login failed. Please try again.',
     });
