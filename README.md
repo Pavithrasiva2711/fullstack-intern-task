@@ -2,6 +2,10 @@
 
 A full-stack web application that allows users to register, log in, explore website templates, and save their favorite templates.
 
+**Live Demo:** https://templatehub-frontend.onrender.com  
+**Backend API:** https://fullstack-intern-task-eljc.onrender.com/api  
+**GitHub Repository:** https://github.com/Pavithrasiva2711/fullstack-intern-task
+
 ## Features
 
 - User registration and login
@@ -13,6 +17,7 @@ A full-stack web application that allows users to register, log in, explore webs
 - View saved templates in My Favorites
 - Search and filter templates by category
 - Responsive user interface
+- Persistent favorites for registered users
 
 ## Tech Stack
 
@@ -30,19 +35,21 @@ A full-stack web application that allows users to register, log in, explore webs
 - bcryptjs
 
 **Database**
-- SQLite
-- Knex.js
+- PostgreSQL for the deployed application
+- SQLite for local development
+- Knex.js for database queries and migrations
 
 ## Project Structure
 
 ```text
-TemplateHub/
+fullstack-intern-task/
 ├── client/
 │   ├── src/
 │   │   ├── pages/
 │   │   ├── App.jsx
 │   │   └── api.js
-│   └── package.json
+│   ├── package.json
+│   └── .env
 ├── server/
 │   ├── middleware/
 │   ├── migrations/
@@ -50,8 +57,7 @@ TemplateHub/
 │   ├── database.js
 │   ├── migrate.js
 │   ├── seed.js
-│   ├── server.js
-│   └── package.json
+│   └── server.js
 ├── .gitignore
 └── README.md
 ```
@@ -77,18 +83,20 @@ cd server
 npm install
 ```
 
-Create a `.env` file inside the `server` folder:
+Create a `.env` file inside the `server` directory:
 
 ```env
 PORT=5000
 JWT_SECRET=replace_with_a_long_random_secret
 ```
 
-Use a strong, private JWT secret.
+For local development, the application uses SQLite by default when `DATABASE_URL` is not set.
+
+For PostgreSQL deployment, configure `DATABASE_URL` in the server environment with your database connection string. Keep all secrets private and never commit `.env` files.
 
 ### 3. Set up the database
 
-Run the database migrations:
+Run the migrations:
 
 ```bash
 node migrate.js
@@ -106,19 +114,34 @@ node seed.js
 npm run dev
 ```
 
-The backend runs at `http://localhost:5000`.
+The backend runs at:
+
+`http://localhost:5000`
 
 ### 5. Configure and start the frontend
 
-Open a new terminal:
+Open a new terminal from the project root:
 
 ```bash
 cd client
 npm install
+```
+
+Create a `.env` file inside the `client` directory:
+
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+Start the frontend:
+
+```bash
 npm run dev
 ```
 
-Open the local URL shown in the terminal, usually `http://localhost:5173`.
+Open the local URL displayed in the terminal, usually:
+
+`http://localhost:5173`
 
 ## API Endpoints
 
@@ -134,9 +157,15 @@ Open the local URL shown in the terminal, usually `http://localhost:5173`.
 
 Favorite endpoints require JWT authentication.
 
+## Deployment
+
+The frontend is deployed on Render as a Static Site, and the backend is deployed as a Web Service. PostgreSQL is used for the deployed database.
+
+- **Frontend:** https://templatehub-frontend.onrender.com
+- **Backend health check:** https://fullstack-intern-task-eljc.onrender.com/api/health
+
 ## Author
 
 **Pavithra S**
 
-GitHub: [Pavithrasiva2711](https://github.com/Pavithrasiva2711)
-
+GitHub: https://github.com/Pavithrasiva2711
