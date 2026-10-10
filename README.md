@@ -91,13 +91,13 @@ Use a strong, private JWT secret.
 Run the database migrations:
 
 ```bash
-npm run migrate
+node migrate.js
 ```
 
 Seed the sample templates:
 
 ```bash
-npm run seed
+node seed.js
 ```
 
 ### 4. Start the backend
@@ -139,3 +139,4 @@ Favorite endpoints require JWT authentication.
 **Pavithra S**
 
 GitHub: [Pavithrasiva2711](https://github.com/Pavithrasiva2711)
+
